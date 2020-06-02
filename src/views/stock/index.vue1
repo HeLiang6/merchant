@@ -1,0 +1,2426 @@
+<template>
+  <div class="app-container">
+    <div class="title">
+      <h2>进件</h2>
+    </div>
+    <div class="dataBox">
+      <el-form :model="form" label-width="130px">
+        <!-- 商户全称 -->
+        <el-form :inline="true" class="license_content">
+          <el-form-item label-width="130px" label="商户全称:">
+            <el-input v-model="form.full_name" class="ipt" />
+          </el-form-item>
+          <!-- 商户简称 -->
+          <el-form-item label-width="130px" label="商户简称:">
+            <el-input v-model="form.short_name" class="ipt" />
+          </el-form-item>
+        </el-form>
+        <el-form :inline="true" class="license_content">
+          <!-- 商户联系人 -->
+          <el-form-item label-width="130px" label="商户联系人:">
+            <el-input v-model="form.link_man" class="ipt" />
+          </el-form-item>
+          <!-- 商户联系电话 -->
+          <el-form-item label-width="130px" label="商户联系电话:">
+            <el-input v-model="form.link_phone" class="ipt" />
+          </el-form-item>
+        </el-form>
+
+        <!-- 联系人手机号 -->
+        <el-form :inline="true" class="license_content">
+          <el-form-item label-width="130px" label="联系人手机号:">
+            <el-input v-model="form.contact_phone_num" class="ipt" />
+          </el-form-item>
+          <!-- 联系人身份证 -->
+          <el-form-item label-width="130px" label="联系人身份证:">
+            <el-input v-model="form.link_man_id" class="ipt" />
+          </el-form-item>
+        </el-form>
+        <el-form-item label-width="130px" label="商户行业">
+          <el-select v-model="form.industry" placeholder="请选择" class="lable_box" @change="industryChange">
+            <el-option
+              v-for="item in industryType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"
+            />
+          </el-select>
+        </el-form-item>
+
+        <!-- 详细地址 -->
+        <el-form-item label-width="130px" label="详细地址:">
+          <el-input v-model="form.district" class="ipt" />
+        </el-form-item>
+        <!-- 地区 -->
+        <el-form :inline="true">
+          <el-form-item label-width="130px" label="省">
+            <el-select v-model="form.province" style="margin-left:20px" value-key="item" placeholder="请选择省份" @change="province">
+              <el-option
+                v-for="item in bankCity"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label-width="30px" label="市">
+            <el-select v-model="form.city" value-key="item" placeholder="请选择城市" @change="city">
+              <el-option
+                v-for="item in bank_city"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label-width="30px" label="区">
+            <el-select v-model="form.area" value-key="item" placeholder="请选择地区" @change="area">
+              <el-option
+                v-for="item in bank_area"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <!-- 图片上传 -->
+        <el-form :inline="true" class="commonality-img shopImgBox">
+          <!--  门头照-->
+          <div>
+            <p>门头照</p>
+            <el-upload
+              :auto-upload="autoUpload"
+              class="avatar-uploader"
+              :on-change="shopImg"
+              action="#"
+              :show-file-list="false"
+            >
+              <img v-if="form.shop_door_pic" :src="baseURL+form.shop_door_pic" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon" />
+            </el-upload>
+            <div class="img_save" @click="shop_door_picRemove">
+              删除
+            </div>
+          </div>
+          <div>
+            <p>店内照</p>
+
+            <el-upload
+              :auto-upload="autoUpload"
+              class="avatar-uploader"
+              :on-change="shop_inside"
+              action="#"
+              :show-file-list="false"
+            >
+              <img v-if="form.shop_inside_pic" :src="baseURL+form.shop_inside_pic" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon" />
+            </el-upload>
+            <div class="img_save" @click="shop_inside_picRemove">
+              删除
+            </div>
+          </div>
+          <!-- 收银台照片 -->
+          <div>
+            <p>店外照</p>
+
+            <el-upload
+              :auto-upload="autoUpload"
+              class="avatar-uploader"
+              :on-change="shop_outside"
+              action="#"
+              :show-file-list="false"
+            >
+              <img v-if="form.shop_outside_pic" :src="baseURL+form.shop_outside_pic" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon" />
+            </el-upload>
+            <div class="img_save" @click="shop_outside_picRemove">
+              删除
+            </div>
+          </div><div>
+            <p>收银台照片</p>
+
+            <el-upload
+              :auto-upload="autoUpload"
+              class="avatar-uploader"
+              :on-change="shop_cashier"
+              action="#"
+              :show-file-list="false"
+            >
+              <img v-if="form.shop_cashier_desk_pic" :src="baseURL+form.shop_cashier_desk_pic" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon" />
+            </el-upload>
+            <div class="img_save" @click="shop_cashier_desk_picRemove">
+              删除
+            </div>
+          </div>
+        </el-form>
+        <!-- 商户类型 -->
+        <el-form-item label="商户类型">
+          <el-radio v-model="form.customer_type" class="lable_box" label="COMPANY">公司企业</el-radio>
+          <el-radio v-model="form.customer_type" label="INDIVIDUALBISS">个体工商户</el-radio>
+          <el-radio v-model="form.customer_type" label="PERSON">个人</el-radio>
+        </el-form-item>
+        <!-- 公司企业 -->
+        <div v-if="true?form.customer_type==='COMPANY':0">
+          <el-form :inline="true" class="license_content">
+            <!-- 营业执照图片 -->
+            <el-form-item label-width="130px" label="营业执照图片:">
+              <div class="img_bd_box lable_box">
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getFile"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.license_pic" :src="baseURL+form.license_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="license_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+            <div class="license_box">
+              <!-- 营业执照号码 -->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照号码">
+                <el-input v-model="form.license" />
+              </el-form-item>
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照注册地址">
+                <el-input v-model="form.postal_address" />
+              </el-form-item>
+              <!-- 营业执照全称 -->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照全称">
+                <el-input v-model="form.license_name" />
+              </el-form-item>
+              <!-- 营业执照结束时间-->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照开始时间">
+                <el-input v-model="form.license_start" />
+              </el-form-item>
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照结束时间">
+                <el-input v-model="form.license_end" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <el-form :inline="true">
+            <!--法人手持身份证图片地址-->
+            <el-form-item label-width="130px" label="商户收单协议照片:">
+              <div class="lable_box">
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="protocalChange"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.protocal_pic" :src="baseURL+form.protocal_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="protocal_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+          </el-form>
+
+          <!-- 法人信息 -->
+          <el-form-item label="证件类型">
+            <el-select v-model="form.certificate_type" placeholder="请选择" class="lable_box" @change="certificateChange">
+              <el-option
+                v-for="item in card"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form :inline="true" class="license_content id_cardImgBox">
+            <div>
+              <p>法人身份证正面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardFront"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_front_pic" :src="baseURL+form.id_card_front_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_front_picRemove">
+                删除
+              </div>
+            </div>
+            <div>
+              <p>法人身份证照片背面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardBack"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_back_pic" :src="baseURL+form.id_card_back_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_back_picRemove">
+                删除
+              </div>
+            </div>
+
+            <div class="licenseId license_box">
+              <!--法人身份证姓名  -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证姓名">
+                <el-input v-model="form.certificate_name" />
+              </el-form-item>
+              <!-- 法人身份证编号 -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证编号">
+                <el-input v-model="form.certificate_code" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件开始日期">
+                <el-input v-model="form.certificate_start_date" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件结束日期">
+                <el-input v-model="form.certificate_end_date" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <el-form :inline="true">
+            <!--法人手持身份证图片地址-->
+            <el-form-item label-width="130px" label="法人手持身份证图片地址">
+              <div class="lable_box">
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="id_card_hand"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.id_card_hand_pic" :src="baseURL+form.id_card_hand_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="id_card_hand_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+          </el-form>
+          <div class="title-box">支付信息</div>
+              <el-form :inline="true" >
+                <el-form-item  label-width="130px" label="银行名称">
+                    <el-select v-model="form.bank_name" style="margin-left:20px" filterable :filter-method="filterList" placeholder="请输入银行名称" @change="handallList">
+                            <el-option
+                                v-for="(item) in allList"
+                                :key="item.id"
+                                :label="item.label"
+                                :value="item.value"
+                            ></el-option>
+                        </el-select>
+                </el-form-item>
+                <el-form-item  label-width="130px" label="银行分行">
+                    <el-select v-model="form.bank_branch_name" filterable :filter-method="filterBranchList" placeholder="请输入银行支行名称">
+                        <el-option
+                            v-for="(item,index) in bank_branchList"
+                            :key="index"
+                            :label="item.label"
+                            :value="item.label"
+                        ></el-option>
+                        </el-select>
+                </el-form-item>
+            </el-form>
+          <el-form :inline="true">
+            <el-form-item label-width="130px" label="银行归属地">
+              <el-select v-model="form.bank_province" style="margin-left:20px" value-key="item" placeholder="请选择银行省份" @change="bank_provinceChange">
+                <el-option
+                  v-for="item in bankCity"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label-width="130px" label="银行城市">
+              <el-select v-model="form.bank_city" value-key="item" placeholder="请选择银行城市" @change="bank_cityChange">
+                <el-option
+                  v-for="item in bank_city"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <el-form :inline="true">
+
+            <el-form-item style="margin-left:20px" label="银行预留手机号">
+              <el-input v-model="form.phone" class="ipt" />
+            </el-form-item>
+            <el-form-item label-width="130px" label="结算方式">
+              <el-select v-model="form.settle_type" value-key="item" placeholder="请选择结算方式">
+                <el-option
+                  v-for="item in settle"
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <!-- 账户类型 -->
+          <el-form-item label="账户类型">
+            <el-radio v-model="form.account_type" class="lable_box" label="PUBLIC">对公</el-radio>
+            <el-radio v-model="form.account_type" label="PRIVATE">对私</el-radio>
+          </el-form-item>
+          <!-- 公司企业对公 -->
+          <el-form v-if="true?form.account_type==='PUBLIC':0" :inline="true" class="license_content">
+            <el-form-item label-width="130px" label="开户许可证图片">
+              <div class="lable_box">
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getFileOpen"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.account_open_license_pic" :src="baseURL+form.account_open_license_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="handleRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+            <!-- 开户许可证 -->
+            <div class="license_box">
+              <el-form-item label-width="130px" label="开户许可证名称">
+                <el-input v-model="form.account_open_license_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="法定代表人">
+                <el-input v-model="form.certificate_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="开户银行">
+                <el-input v-model="form.bank_branch_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="开户银行账号">
+                <el-input v-model="form.bank_account_num" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <div v-if="true?form.account_type==='PRIVATE':0">
+            <el-form-item label="结算人是否为法人">
+              <el-radio v-model="form.is_legal_name_account" class="lable_box" label="法">法人</el-radio>
+              <el-radio v-model="form.is_legal_name_account" label="非">非法人</el-radio>
+            </el-form-item>
+          </div>
+          <!-- 法人 -->
+          <div v-if="true?form.is_legal_name_account==='法' && form.account_type==='PRIVATE':0">
+            <el-form :inline="true" class="license_content bank">
+              <el-form-item label-width="130px" label="银行卡正面图片">
+                <div class="lable_box">
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="getbankCard"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.bank_card_pic" :src="baseURL+form.bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="bank_card_picRemove">
+                    删除
+                  </div>
+                </div>
+              </el-form-item>
+              <div class="license_box">
+                <el-form-item label-width="130px" label="银行账户卡号">
+                  <el-input v-model="form.bank_account_num" />
+                </el-form-item>
+                <!-- <el-form-item label-width="130px" label="银行账户名称">
+                  <el-input v-model="form.bank_account_name" />
+                </el-form-item> -->
+              </div>
+            </el-form>
+          </div>
+          <!-- 非法人 -->
+          <div v-if="true?form.is_legal_name_account==='非' && form.account_type==='PRIVATE':0">
+            <el-form :inline="true" class="license_content">
+
+              <el-form-item label-width="130px" label="非法人结算授权照片">
+                <div class="lable_box">
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_authorization"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_authorization_pic" :src="baseURL+form.settler_authorization_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_authorization_picRemove">
+                    删除
+                  </div>
+                </div>
+              </el-form-item>
+            </el-form>
+            <!-- 结算非法人身份证 -->
+
+            <el-form :inline="true" class="license_content id_cardImgBox">
+              <div>
+                <p>结算非法人身份证正面图片</p>
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getClostID"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.settler_certificate_front_pic" :src="baseURL+form.settler_certificate_front_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="settler_certificate_front_picRemove">
+                  删除
+                </div>
+              </div>
+              <div>
+                <p>结算非法人身份证反面图片</p>
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getClostIDNo"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.settler_certificate_back_pic" :src="baseURL+form.settler_certificate_back_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="settler_certificate_back_picRemove">
+                  删除
+                </div>
+              </div>
+
+              <!-- 结算人身份证号 -->
+              <div class="license_box licenseId">
+                <el-form-item label-width="120px" size="mini" label="身份证姓名">
+                  <el-input v-model="form.settler_name" />
+                </el-form-item>
+
+                <el-form-item label-width="120px" size="mini" label="身份证号">
+                  <el-input v-model="form.settler_certificate_code" />
+                </el-form-item>
+                <el-form-item label-width="120px" size="mini" label="身份证开始时间">
+                  <el-input v-model="form.settler_certificate_start_date" />
+                </el-form-item>
+                <el-form-item label-width="120px" size="mini" label="身份证结束时间">
+                  <el-input v-model="form.settler_certificate_end_date" />
+                </el-form-item>
+
+              </div>
+
+            </el-form>
+            <el-form :inline="true" class="license_content">
+              <div class="license_box" />
+            </el-form>
+            <el-form :inline="true" class="license_content bank">
+              <el-form-item label-width="130px" label="银行卡正面图片">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="getbankCard"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.bank_card_pic" :src="baseURL+form.bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="bank_card_picRemove">
+                    删除
+                  </div>
+                </div>
+              </el-form-item>
+              <div class="license_box">
+                <el-form-item label-width="130px" label="银行账户卡号">
+                  <el-input v-model="form.bank_account_num" />
+                </el-form-item>
+                <!-- <el-form-item label-width="130px" label="银行账户名称">
+                  <el-input v-model="form.bank_account_name" />
+                </el-form-item> -->
+              </div>
+            </el-form>
+
+            <el-form :inline="true" class="license_content">
+              <el-form-item label-width="130px" label="非法人结算人手持身份证照片地址">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_hold_certificate"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_hold_certificate_pic" :src="baseURL+form.settler_hold_certificate_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_hold_certificate_picRemove">
+                    删除
+                  </div>
+
+                </div>
+              </el-form-item>
+              <el-form-item label-width="130px" label="非法人结算人手持银行卡照片地址">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_hold_bank_card"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_hold_bank_card_pic" :src="baseURL+form.settler_hold_bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_hold_bank_card_picRemove">
+                    删除
+                  </div>
+
+                </div>
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="title-box">配置信息</div>
+          <el-form-item label="公众号主体名称">
+            <el-input v-model="form.we_chat_name" />
+          </el-form-item>
+          <el-form-item label="微信公众号appid">
+            <el-input v-model="form.we_chat_app_id" />
+          </el-form-item>
+          <el-form-item label="微信小程序ID">
+            <el-input v-model="form.we_chat_program_id" />
+          </el-form-item>
+          <el-form-item label="微信联系人微信号">
+            <el-input v-model="form.we_chat_link" />
+          </el-form-item>
+          <el-form-item label="支付目录">
+            <el-input v-model="form.pay_dir" />
+          </el-form-item>
+          <div class="btn">
+            <el-button class="btn-mar" :plain="true" @click="saveFirmClick">保存</el-button>
+            <el-button type="primary" class="btn-mar" :plain="true" @click="submitFirm">提交</el-button>
+          </div>
+        </div>
+        <!-- 个体工商 -->
+        <div v-if="true?form.customer_type==='INDIVIDUALBISS':0">
+          <el-form :inline="true" class="license_content">
+            <!-- 营业执照图片 -->
+            <el-form-item label-width="130px" label="营业执照图片:">
+              <div class="img_bd_box lable_box">
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getFile"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.license_pic" :src="baseURL+form.license_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="license_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+            <div class="license_box">
+              <!-- 营业执照号码 -->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照号码">
+                <el-input v-model="form.license" />
+              </el-form-item>
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照注册地址">
+                <el-input v-model="form.postal_address" />
+              </el-form-item>
+              <!-- 营业执照全称 -->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照全称">
+                <el-input v-model="form.license_name" />
+              </el-form-item>
+              <!-- 营业执照结束时间-->
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照开始时间">
+                <el-input v-model="form.license_start" />
+              </el-form-item>
+              <el-form-item style="margin-bottom:2px" size="small" label-width="130px" label="营业执照结束时间">
+                <el-input v-model="form.license_end" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <el-form :inline="true">
+            <!--法人手持身份证图片地址-->
+            <el-form-item label-width="130px" label="商户收单协议照片:">
+              <div class="lable_box">
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="protocalChange"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.protocal_pic" :src="baseURL+form.protocal_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="protocal_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+          </el-form>
+
+          <!-- 法人信息 -->
+          <el-form-item label="证件类型">
+            <el-select v-model="form.certificate_type" placeholder="请选择" class="lable_box" @change="certificateChange">
+              <el-option
+                v-for="item in card"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form :inline="true" class="license_content id_cardImgBox">
+            <div>
+              <p>法人身份证正面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardFront"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_front_pic" :src="baseURL+form.id_card_front_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_front_picRemove">
+                删除
+              </div>
+            </div>
+            <div>
+              <p>法人身份证照片背面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardBack"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_back_pic" :src="baseURL+form.id_card_back_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_back_picRemove">
+                删除
+              </div>
+            </div>
+
+            <div class="licenseId license_box">
+              <!--法人身份证姓名  -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证姓名">
+                <el-input v-model="form.certificate_name" />
+              </el-form-item>
+              <!-- 法人身份证编号 -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证编号">
+                <el-input v-model="form.certificate_code" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件开始日期">
+                <el-input v-model="form.certificate_start_date" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件结束日期">
+                <el-input v-model="form.certificate_end_date" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <div class="title-box">支付信息</div>
+              <el-form :inline="true" >
+                <el-form-item  label-width="130px" label="银行名称">
+                    <el-select v-model="form.bank_name" style="margin-left:20px" filterable :filter-method="filterList" placeholder="请输入银行名称" @change="handallList">
+                            <el-option
+                                v-for="(item) in allList"
+                                :key="item.id"
+                                :label="item.label"
+                                :value="item.value"
+                            ></el-option>
+                        </el-select>
+                </el-form-item>
+                <el-form-item  label-width="130px" label="银行分行">
+                    <el-select v-model="form.bank_branch_name" filterable :filter-method="filterBranchList" placeholder="请输入银行支行名称">
+                        <el-option
+                            v-for="(item,index) in bank_branchList"
+                            :key="index"
+                            :label="item.label"
+                            :value="item.label"
+                        ></el-option>
+                        </el-select>
+                </el-form-item>
+            </el-form>
+          <el-form :inline="true">
+            <el-form-item label-width="130px" label="银行归属地">
+              <el-select v-model="form.bank_province" style="margin-left:20px" value-key="item" placeholder="请选择银行省份" @change="bank_provinceChange">
+                <el-option
+                  v-for="item in bankCity"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label-width="130px" label="银行城市">
+              <el-select v-model="form.bank_city" value-key="item" placeholder="请选择银行城市" @change="bank_cityChange">
+                <el-option
+                  v-for="item in bank_city"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <!-- <el-form-item label-width="30px" label="区">
+                <el-select v-model="form.bank_area" value-key="item" placeholder="请选择银行地区" @change="bank_areaChange">
+                  <el-option
+                    v-for="item in bank_area"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-form-item> -->
+          </el-form>
+
+          <el-form :inline="true">
+
+            <el-form-item style="margin-left:20px" label="银行预留手机号">
+              <el-input v-model="form.phone" class="ipt" />
+            </el-form-item>
+            <el-form-item label-width="130px" label="结算方式">
+              <el-select v-model="form.settle_type" value-key="item" placeholder="请选择结算方式">
+                <el-option
+                  v-for="item in settle"
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <!-- 账户类型 -->
+          <el-form-item label="账户类型">
+            <el-radio v-model="form.account_type" class="lable_box" label="PUBLIC">对公</el-radio>
+            <el-radio v-model="form.account_type" label="PRIVATE">对私</el-radio>
+          </el-form-item>
+          <!-- 个体对公 -->
+          <el-form v-if="true?form.account_type==='PUBLIC':0" :inline="true" class="license_content">
+            <el-form-item label-width="130px" label="开户许可证图片">
+              <div class="lable_box">
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getFileOpen"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.account_open_license_pic" :src="baseURL+form.account_open_license_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="handleRemove">
+                  删除
+                </div>
+              </div>
+
+            </el-form-item>
+            <!-- 开户许可证 -->
+            <div class="license_box">
+              <el-form-item label-width="130px" label="开户许可证名称">
+                <el-input v-model="form.account_open_license_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="法定代表人">
+                <el-input v-model="form.certificate_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="开户银行">
+                <el-input v-model="form.bank_branch_name" />
+              </el-form-item>
+              <el-form-item label-width="130px" label="开户银行账号">
+                <el-input v-model="form.bank_account_num" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <div v-if="true?form.account_type==='PRIVATE':0">
+            <el-form-item label="结算人是否为法人">
+              <el-radio v-model="form.is_legal_name_account" class="lable_box" label="法">法人</el-radio>
+              <el-radio v-model="form.is_legal_name_account" label="非">非法人</el-radio>
+            </el-form-item>
+          </div>
+          <!-- 法人 -->
+          <div v-if="true?form.is_legal_name_account==='法' && form.account_type==='PRIVATE':0">
+            <el-form :inline="true" class="license_content bank">
+              <el-form-item label-width="130px" label="银行卡正面图片">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="getbankCard"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.bank_card_pic" :src="baseURL+form.bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="bank_card_picRemove">
+                    删除
+                  </div>
+                </div>
+              </el-form-item>
+              <div class="license_box">
+                <el-form-item label-width="130px" label="银行账户卡号">
+                  <el-input v-model="form.bank_account_num" />
+                </el-form-item>
+                <!-- <el-form-item label-width="130px" label="银行账户名称">
+                  <el-input v-model="form.bank_account_name" />
+                </el-form-item> -->
+              </div>
+            </el-form>
+          </div>
+          <!-- 非法人 -->
+          <div v-if="true?form.is_legal_name_account==='非' && form.account_type==='PRIVATE':0">
+            <el-form :inline="true" class="license_content">
+
+              <el-form-item label-width="130px" label="非法人结算授权照片">
+                <div class="lable_box">
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_authorization"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_authorization_pic" :src="baseURL+form.settler_authorization_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_authorization_picRemove">
+                    删除
+                  </div>
+
+                </div>
+              </el-form-item>
+            </el-form>
+            <!-- 结算非法人身份证 -->
+
+            <el-form :inline="true" class="license_content id_cardImgBox">
+              <div>
+                <p>结算非法人身份证正面图片</p>
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getClostID"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.settler_certificate_front_pic" :src="baseURL+form.settler_certificate_front_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="settler_certificate_front_picRemove">
+                  删除
+                </div>
+              </div>
+              <div>
+                <p>结算非法人身份证反面图片</p>
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getClostIDNo"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.settler_certificate_back_pic" :src="baseURL+form.settler_certificate_back_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="settler_certificate_back_picRemove">
+                  删除
+                </div>
+              </div>
+
+              <!-- 结算人身份证号 -->
+              <div class="license_box licenseId">
+                <el-form-item label-width="120px" size="mini" label="身份证姓名">
+                  <el-input v-model="form.settler_name" />
+                </el-form-item>
+
+                <el-form-item label-width="120px" size="mini" label="身份证号">
+                  <el-input v-model="form.settler_certificate_code" />
+                </el-form-item>
+                <el-form-item label-width="120px" size="mini" label="身份证开始时间">
+                  <el-input v-model="form.settler_certificate_start_date" />
+                </el-form-item>
+                <el-form-item label-width="120px" size="mini" label="身份证结束时间">
+                  <el-input v-model="form.settler_certificate_end_date" />
+                </el-form-item>
+
+              </div>
+
+            </el-form>
+            <el-form :inline="true" class="license_content bank">
+              <el-form-item label-width="130px" label="银行卡正面图片">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="getbankCard"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.bank_card_pic" :src="baseURL+form.bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="bank_card_picRemove">
+                    删除
+                  </div>
+                </div>
+              </el-form-item>
+              <div class="license_box">
+                <el-form-item label-width="130px" label="银行账户卡号">
+                  <el-input v-model="form.bank_account_num" />
+                </el-form-item>
+                <!-- <el-form-item label-width="130px" label="银行账户名称">
+                  <el-input v-model="form.bank_account_name" />
+                </el-form-item> -->
+              </div>
+            </el-form>
+            <el-form :inline="true" class="license_content">
+              <el-form-item label-width="130px" label="非法人结算人手持身份证照片地址">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_hold_certificate"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_hold_certificate_pic" :src="baseURL+form.settler_hold_certificate_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_hold_certificate_picRemove">
+                    删除
+                  </div>
+
+                </div>
+              </el-form-item>
+              <el-form-item label-width="130px" label="非法人结算人手持银行卡照片地址">
+                <div class="lable_box">
+
+                  <el-upload
+                    :auto-upload="autoUpload"
+                    class="avatar-uploader"
+                    :on-change="settler_hold_bank_card"
+                    action="#"
+                    :show-file-list="false"
+                  >
+                    <img v-if="form.settler_hold_bank_card_pic" :src="baseURL+form.settler_hold_bank_card_pic" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon" />
+                  </el-upload>
+                  <div class="img_save" @click="settler_hold_bank_card_picRemove">
+                    删除
+                  </div>
+
+                </div>
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="title-box">配置信息</div>
+          <el-form-item label="公众号主体名称">
+            <el-input v-model="form.we_chat_name" />
+          </el-form-item>
+          <el-form-item label="微信公众号appid">
+            <el-input v-model="form.we_chat_app_id" />
+          </el-form-item>
+          <el-form-item label="微信小程序ID">
+            <el-input v-model="form.we_chat_program_id" />
+          </el-form-item>
+          <el-form-item label="微信联系人微信号">
+            <el-input v-model="form.we_chat_link" />
+          </el-form-item>
+          <el-form-item label="支付目录">
+            <el-input v-model="form.pay_dir" />
+          </el-form-item>
+          <div class="btn">
+            <el-button class="btn-mar" :plain="true" @click="saveClick">保存</el-button>
+            <el-button type="primary" class="btn-mar" :plain="true" @click="submitForm">提交</el-button>
+          </div>
+
+        </div>
+        <!-- 个人 -->
+        <div v-if="true?form.customer_type==='PERSON':0">
+          <el-form :inline="true">
+            <!--法人手持身份证图片地址-->
+            <el-form-item label-width="130px" label="商户收单协议照片:">
+              <div class="lable_box">
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="protocalChange"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.protocal_pic" :src="baseURL+form.protocal_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="protocal_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+          </el-form>
+
+          <!-- 法人信息 -->
+          <el-form-item label="证件类型">
+            <el-select v-model="form.certificate_type" placeholder="请选择" class="lable_box" @change="certificateChange">
+              <el-option
+                v-for="item in card"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form :inline="true" class="license_content id_cardImgBox">
+            <div>
+              <p>法人身份证正面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardFront"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_front_pic" :src="baseURL+form.id_card_front_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_front_picRemove">
+                删除
+              </div>
+            </div>
+            <div>
+              <p>法人身份证照片背面图片</p>
+              <el-upload
+                :auto-upload="autoUpload"
+                class="avatar-uploader"
+                :on-change="getidCardBack"
+                action="#"
+                :show-file-list="false"
+              >
+                <img v-if="form.id_card_back_pic" :src="baseURL+form.id_card_back_pic" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon" />
+              </el-upload>
+              <div class="img_save" @click="id_card_back_picRemove">
+                删除
+              </div>
+            </div>
+
+            <div class="licenseId license_box">
+              <!--法人身份证姓名  -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证姓名">
+                <el-input v-model="form.certificate_name" />
+              </el-form-item>
+              <!-- 法人身份证编号 -->
+              <el-form-item label-width="120px" size="mini" label="法人身份证编号">
+                <el-input v-model="form.certificate_code" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件开始日期">
+                <el-input v-model="form.certificate_start_date" />
+              </el-form-item>
+              <el-form-item label-width="120px" size="mini" label="证件结束日期">
+                <el-input v-model="form.certificate_end_date" />
+              </el-form-item>
+            </div>
+          </el-form>
+          <el-form :inline="true" class="license_content bank">
+            <el-form-item label-width="130px" label="银行卡正面图片">
+              <div class="lable_box">
+
+                <el-upload
+                  :auto-upload="autoUpload"
+                  class="avatar-uploader"
+                  :on-change="getbankCard"
+                  action="#"
+                  :show-file-list="false"
+                >
+                  <img v-if="form.bank_card_pic" :src="baseURL+form.bank_card_pic" class="avatar">
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
+                </el-upload>
+                <div class="img_save" @click="bank_card_picRemove">
+                  删除
+                </div>
+              </div>
+            </el-form-item>
+            <div class="license_box">
+              <el-form-item label-width="130px" label="银行账户卡号">
+                <el-input v-model="form.bank_account_num" />
+              </el-form-item>
+                <el-form-item  label-width="130px" label="银行名称">
+                    <el-select v-model="form.bank_name" filterable :filter-method="filterList" placeholder="请输入银行名称" @change="handallList">
+                            <el-option
+                                v-for="(item) in allList"
+                                :key="item.id"
+                                :label="item.label"
+                                :value="item.value"
+                            ></el-option>
+                        </el-select>
+                </el-form-item>
+                <el-form-item  label-width="130px" label="银行分行">
+                    <el-select v-model="form.bank_branch_name" filterable :filter-method="filterBranchList"  placeholder="请输入银行支行名称">
+                        <el-option
+                            v-for="(item,index) in bank_branchList"
+                            :key="index"
+                            :label="item.label"
+                            :value="item.label"
+                        ></el-option>
+                        </el-select>
+                </el-form-item>
+            </div>
+          </el-form>
+          <el-form :inline="true">
+            <el-form-item label-width="130px" label="银行卡号归属地">
+              <el-select v-model="form.bank_province" style="margin-left:20px" value-key="item" placeholder="请选择银行省份" @change="bank_provinceChange">
+                <el-option
+                  v-for="item in bankCity"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label-width="130px" label="城市">
+              <el-select v-model="form.bank_city" value-key="item" placeholder="请选择银行城市" @change="bank_cityChange">
+                <el-option
+                  v-for="item in bank_city"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <!-- <el-form-item label-width="30px" label="区">
+              <el-select v-model="form.bank_area" value-key="item" placeholder="请选择银行地区" @change="bank_areaChange">
+                <el-option
+                  v-for="item in bank_area"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item> -->
+          </el-form>
+          <el-form :inline="true">
+
+            <el-form-item style="margin-left:20px" label="银行预留手机号">
+              <el-input v-model="form.phone" class="ipt" />
+            </el-form-item>
+            <el-form-item label-width="130px" label="结算方式">
+              <el-select v-model="form.settle_type" value-key="item" placeholder="请选择结算方式">
+                <el-option
+                  v-for="item in settle"
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <!-- 账户类型 -->
+          <el-form-item label="账户类型">
+            <el-radio v-model="personage.isPublicType" label="PRIVATE">对私</el-radio>
+          </el-form-item>
+          <div class="title-box">配置信息</div>
+          <el-form-item label="公众号主体名称">
+            <el-input v-model="form.we_chat_name" />
+          </el-form-item>
+          <el-form-item label="微信公众号appid">
+            <el-input v-model="form.we_chat_app_id" />
+          </el-form-item>
+          <el-form-item label="微信小程序ID">
+            <el-input v-model="form.we_chat_program_id" />
+          </el-form-item>
+          <el-form-item label="微信联系人微信号">
+            <el-input v-model="form.we_chat_link" />
+          </el-form-item>
+          <el-form-item label="支付目录">
+            <el-input v-model="form.pay_dir" />
+          </el-form-item>
+          <div class="btn">
+            <el-button class="btn-mar" :plain="true" @click="savePersonClick">保存</el-button>
+            <el-button type="primary" class="btn-mar" :plain="true" @click="submitperson">提交</el-button>
+          </div>
+
+        </div>
+      </el-form>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import {
+  type,
+  Img,
+  sub,
+  license,
+  idCardBack,
+  idCardFront,
+  bankCard,
+  bank,
+  province,
+  bankarea,
+  bank_name,
+  save,
+  gain,
+  bank_branch
+} from './api'
+export default {
+  name: 'StockList',
+  data () {
+    return {
+      baseURL: '',
+      allList: [],
+      autoUpload: false,
+      imageUrl: '',
+      hideUpload: false, // 图片
+      limitCount: 1,
+      person: '1', // 是否法人
+      cityVal: [],
+      bankCity: [], // 银行省
+      bank_city: [], // 银行市
+      bank_area: [],
+      allList: [],
+      bankList: [], // 银行列表
+      bank_branch: [],
+      bank_branchList: [], // 银行分行列表
+      bank_branch_name: '',
+      industryType: [],
+      options: [],
+      card: [], // 证件类型
+      value: '',
+      account: [], // 账户类型
+      settle: [{ // 结算方式
+        value: 'D1'
+      }, {
+        value: 'T1'
+      }],
+      form: {
+        full_name: '', // 商户全称
+        short_name: '', // 商户简称
+        city: '', // 城市
+        province: '', // 商户所属省份
+        area: '', // 地区
+        customer_type: 'COMPANY', // 商户类型
+        industry: '', // 商户所属行业
+        district: '', // 详细地址
+        link_man: '', // 商户联系人
+        link_phone: '', // 商户联系电话
+        license: '', // 营业执照号码
+        license_end: '', // 营业执照结束时间
+        license_start: '', // 营业执照开始时间
+        license_name: '', // 营业执照全称
+        postal_address: '', // 营业执照注册地址
+        license_pic: '', // 营业执照图片
+        contact_phone_num: '', // 联系人手机号
+        link_man_id: '', // 联系人身份证
+        organization_code: '', // 组织结构代码
+        tax_certification: '', // 税务登记证
+        account_open_license_name: '', // 开户许可证
+        account_open_license_pic: '', // 开户许可证图片
+        shop_door_pic: '', // '门头照'
+        shop_inside_pic: '', // '店内照'
+        shop_outside_pic: '', // 店外照
+        shop_cashier_desk_pic: '', // 收银台照片
+        tax_certification_pic: '', // 税务登记证图片地址
+        organization_pic: '', // 组织机构代码证图片地址
+        protocal_pic: '',
+        is_legal_name_account: '法人', // 是否法人结算
+        // 法人信息
+        certificate_type: '', // 证件类型
+        certificate_code: '', // 法人身份证编号
+        certificate_name: '', // 法人身份证姓名
+        certificate_start_date: '', // 法人证件开始日期
+        certificate_end_date: '', // 法人证件结束时间日期
+        id_card_front_pic: '', // 法人身份证照片正面地址
+        id_card_back_pic: '', // 法人身份证照片背面地址
+        id_card_hand_pic: '', // 法人手持身份证图片地址
+        // 支付信息
+        cert_num: '', // 证书编号
+        settle_type: '', // 结算方式
+        cert_type: '', // 特殊资质证书
+        certificate_file_pic: '', // 事业单位证明函
+        unified_social_credit_code_pic: '', // 统一信用代码证地址
+        // 公司企业非法人
+        settler_hold_certificate_pic: '', // 非法人结算人手持身份证照片地址
+        settler_hold_bank_card_pic: '', // 非法人结算人手持银行卡照片地址'"`
+        settler_certificate_back_pic: '', // 结算人身份证照片背面地址
+        settler_certificate_front_pic: '', // 结算人身份证照片正面地址
+        settler_authorization_pic: '', // 非法人结算授权照片
+
+        account_type: 'PUBLIC', // 账户类型
+        bank_account_name: '', // 银行账户名称
+        bank_account_num: '', // 银行账户卡号
+        bank_province: '', // 银行所属省份
+        bank_city: '', // 银行所属城市
+        bank_area: '', // 银行地区
+        bank_branch_name: '', // 银行分行名称
+        bank_name: '', // 银行名称,
+        settle_amount: '', // 结算金额，起结金额必须大于等于1
+        phone: '', // 银行预留手机号
+        settler_certificate_code: '', // 结算人身份证号
+        settler_certificate_start_date: '', // 结算人身份证开始时间
+
+        settler_certificate_end_date: '', // 结算人身份证结束时间
+        bank_card_pic: '', // 银行卡正面图片
+        // 程序
+        we_chat_name: '', // 公众号主体名称
+        we_chat_app_id: '', // 微信公众号appid
+        we_chat_program_id: '', // 微信小程序ID
+        we_chat_link: '', // 微信联系人微信号
+        pay_dir: '' // 支付目录
+      },
+      // 新
+      enterprise: {
+        isPublicType: 'PUBLIC',
+        islegalPerson: '法人'
+      },
+      individual: {
+        isPublicType: 'PUBLIC',
+        islegalPerson: '法人'
+      },
+      personage: {
+        isPublicType: 'PRIVATE'
+      }
+    }
+  },
+  created () {
+    gain()
+      .then(res => {
+        console.log(res.data.customer_type)
+        // 企业判断
+        this.form = res.data
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  },
+  mounted () {
+    this.baseURL = process.env.VUE_APP_BASE_URL
+    console.log(this.baseURL)
+    this.getCityNum()
+    // 银行省
+    bank()
+      .then(res => {
+        this.bankCity = res
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    // 银行列表
+        bank_name()
+      .then(res => {
+        let obj = {}
+        res.find(item => {
+          obj = {
+            value: item.direct_bank_code,
+            id: item.id,
+            label: item.bank_name
+          }
+          this.bankList.push(obj)
+          this.allList = this.bankList.slice(0, 20)
+        })
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+  },
+  methods: {
+    getCityNum () {
+      // 商户类型
+      type()
+        .then(res => {
+          console.log(res)
+
+          // this.options = res.customer_type
+          for (const key in res.customer_type) {
+            const obj = {
+              value: key,
+              label: res.customer_type[key]
+            }
+            this.options.push(obj)
+          }
+          // 证件类型
+          for (const item in res.certificate_type) {
+            const obj = {
+              value: item,
+              label: res.certificate_type[item]
+            }
+            console.log(obj)
+
+            this.card.push(obj)
+          }
+          // 行业
+          for (const item in res.micro_biz_type) {
+            const obj = {
+
+              value: item,
+              label: res.micro_biz_type[item]
+            }
+            this.industryType.push(obj)
+          }
+          // 账户类型
+          for (const item in res.account_type) {
+            const obj = {
+              value: item,
+              label: res.account_type[item]
+            }
+            this.account.push(obj)
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 开户图片上传
+    getFileOpen (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.account_open_license_pic = res.image_save_url
+            console.log(res)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 税务登记证图片上传
+    tax (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.tax_certification_pic = res.image_save_url
+            console.log(res)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 组织机构代码证图片上传
+    organization (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.organization_pic = res.image_save_url
+            console.log(res)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 门头照
+    shopImg (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.shop_door_pic = res.image_save_url
+            console.log(this.form.shop_door_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 店内照
+    shop_inside (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.shop_inside_pic = res.image_save_url
+            console.log(this.form.shop_inside_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 收银台照片
+    shop_cashier (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.shop_cashier_desk_pic = res.image_save_url
+            console.log(this.form.shop_cashier_desk_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 店外照
+    shop_outside (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.shop_outside_pic = res.image_save_url
+            console.log(this.form.shop_outside_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 法人手持身份证图片地址
+    id_card_hand (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.id_card_hand_pic = res.image_save_url
+            console.log(this.form.id_card_hand_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 事业单位证明函
+    certificate_file (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.certificate_file_pic = res.image_save_url
+            console.log(this.form.certificate_file_pic)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 统一信用代码证地址
+    unified_social_credit_code (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.unified_social_credit_code_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 非法人结算人手持银行卡照片地址
+    settler_hold_certificate (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.settler_hold_certificate_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 非法人结算人手持身份证照片地址
+    settler_hold_bank_card (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.settler_hold_bank_card_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 非法人结算授权照片
+    settler_authorization (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.settler_authorization_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 手持身份证
+    handId (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.settler_authorization_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 判断图片格式
+    beforeAvatarUpload (file) {
+      console.log(file)
+
+      const isimg =
+        file.raw.type === 'image/jpeg' || file.raw.type === 'image/png'
+      const isLt2M = file.raw.size / 1024 / 1024 < 0.5
+      console.log(isimg)
+
+      if (!isimg) {
+        this.$message.error('上传头像图片只能是 JPG/PNg 格式!')
+        return false
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过500K!')
+        return false
+      }
+      return isimg && isLt2M
+    },
+    // 获取行业
+    industryChange (val) {
+      console.log(val)
+      this.form.industry = val
+    },
+    // 证件类型
+    certificateChange (val) {
+      let obj = {}
+      obj = this.card.find(item => {
+        console.log(item)
+
+        return item.value === val
+      })
+      // this.form.certificate_type = obj.label
+      // console.log(this.form.certificate_type)
+      this.form.certificate_type = obj.value
+    },
+    province (val) {
+      let obj = {}
+      obj = this.bankCity.find(item => {
+        return item.id === val
+      })
+      this.form.province = obj.name
+      console.log(this.form.province)
+      province(val)
+        .then(res => {
+          this.bank_city = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    city (val) {
+      let obj = {}
+      obj = this.bank_city.find(item => {
+        return item.id === val
+      })
+      this.form.city = obj.name
+      console.log(this.form.city)
+      bankarea(val)
+        .then(res => {
+          console.log(res)
+          this.bank_area = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    area (val) {
+      let obj = {}
+      obj = this.bank_area.find(item => {
+        return item.id === val
+      })
+      this.form.area = obj.name
+      console.log(this.form.area)
+    },
+    // 获取银行省
+    bank_provinceChange (val) {
+      console.log(val)
+      let obj = {}
+      obj = this.bankCity.find(item => {
+        console.log(item)
+
+        return item.id === val
+      })
+      this.form.bank_province = obj.name
+      console.log(this.form.bank_province)
+      province(val)
+        .then(res => {
+          this.bank_city = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 获取银行城市
+    bank_cityChange (val) {
+      console.log(val)
+      let obj = {}
+      obj = this.bank_city.find(item => {
+        return item.id === val
+      })
+      this.form.bank_city = obj.name
+      console.log(this.form.bank_city)
+      bankarea(val)
+        .then(res => {
+          console.log(res)
+          this.bank_area = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 获取地区
+    bank_areaChange (val) {
+      let obj = {}
+      obj = this.bank_area.find(item => {
+        return item.id === val
+      })
+      this.form.bank_area = obj.name
+      console.log(this.form.bank_area)
+    },
+    // 获取银行
+    filterList (val) {
+      if (val == '') {
+        this.allList = this.bankList.slice(0, 20)
+      } else {
+        const result = []
+        this.bankList.forEach(item => {
+          if (item.label.indexOf(val) !== -1) {
+            result.push(item)
+          }
+        })
+        this.allList = result.slice(0, 20)
+      }
+
+    },
+    handallList (val) {
+      bank_branch(val)
+        .then(res => {
+          // 银行分行
+          this.bank_branchLlist = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+
+      },
+    handallList (val) {
+      bank_branch(val)
+        .then(res => {
+          let obj = {}
+          res.find(item => {
+            obj = {
+              value: item.id,
+              label: item.bank_name
+            }
+            this.bank_branch.push(obj)
+            this.bank_branchList = this.bank_branch.slice(0, 20)
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 银行过滤
+    filterList (val) {
+      if (val === '') {
+        this.allList = this.bankList.slice(0, 20)
+      } else {
+        const result = []
+        this.bankList.forEach(item => {
+          if (item.label.indexOf(val) !== -1) {
+            result.push(item)
+          }
+        })
+        this.allList = result.slice(0, 20)
+      }
+    },
+    // 银行分行
+    filterBranchList (val) {
+      if (val === '') {
+        this.bank_branchList = this.bank_branch.slice(0, 20)
+      } else {
+        const result = []
+        this.bank_branch.forEach(item => {
+          if (item.label.indexOf(val) !== -1) {
+              result.push(item)
+          }
+        })
+        this.bank_branchList = result.slice(0, 20)
+      }
+    },
+    // 营业执照图片上传
+    getFile (file, fileList) {
+      console.log(file.raw, fileList)
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        license(formData)
+          .then(res => {
+            this.form.license_pic = res.image_save_url
+            this.form.license = res.reg_num
+            this.form.license_end = res.end_date
+            this.form.license_start = res.start_date
+            this.form.license_name = res.name
+            this.form.postal_address = res.address
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      } // 验证图片格式
+      // this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    // 银行卡上传
+    getbankCard (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        bankCard(formData)
+          .then(res => {
+            this.form.bank_card_pic = res.image_save_url
+            this.form.bank_account_num = res.bank_card
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 法人身份证正面上传
+    getidCardFront (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        idCardFront(formData)
+          .then(res => {
+            this.form.id_card_front_pic = res.image_save_url
+            this.form.certificate_name = res.name
+            this.form.certificate_code = res.num
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 法人身份证反面上传
+    getidCardBack (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        idCardBack(formData)
+          .then(res => {
+            console.log(res)
+            this.form.id_card_back_pic = res.image_save_url
+            this.form.certificate_start_date = res.start_date
+            this.form.certificate_end_date = res.end_date
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 结算非法人身份证正面
+    getClostID (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        idCardFront(formData)
+          .then(res => {
+            this.form.settler_certificate_front_pic = res.image_save_url
+            this.form.settler_certificate_code = res.num
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 结算非法人身份证反面
+    getClostIDNo (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        idCardBack(formData)
+          .then(res => {
+            this.form.settler_certificate_back_pic = res.image_save_url
+            this.form.settler_certificate_start_date = res.start_date
+            this.form.settler_certificate_end_date = res.end_date
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    // 企业提交保存
+    saveFirmClick () {
+      save(this.form)
+        .then(res => {
+          console.log(res)
+          this.$message('保存成功')
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    submitFirm () {
+      if (this.form.account_type === 'PUBLIC') {
+        if (
+          this.form.account_open_license_pic !== '' && this.form.account_open_license_name !== '' && this.form.certificate_name !== '' && this.form.bank_name !== '' && this.form.bank_name !== ''
+        ) {
+          sub(this.form)
+            .then(res => {
+              this.$message({
+                message: '提交成功',
+                type: 'success'
+              })
+              console.log(res)
+            })
+            .catch(err => {
+              this.$message({
+                message: '相关数据不能为空',
+                type: 'warning'
+              })
+            })
+        } else {
+          this.$message('开户信息不为空')
+        }
+      }
+      if (this.form.account_type === 'PRIVATE') {
+        if (this.form.is_legal_name_account === '法') {
+          if (this.form.bank_card_pic !== '' && this.form.bank_account_num !== '') {
+            sub(this.form)
+              .then(res => {
+                this.$message({
+                  message: '提交成功',
+                  type: 'success'
+                })
+                console.log(res)
+              })
+              .catch(err => {
+                this.$message({
+                  message: '相关数据不能为空',
+                  type: 'warning'
+                })
+              })
+          } else {
+            this.$message('法人信息不为空')
+          }
+        } else if (this.form.is_legal_name_account === '非') {
+          if (this.form.settler_authorization_pic !== '' &&
+          this.form.settler_certificate_front_pic !== '' &&
+          this.form.settler_certificate_back_pic !== '' &&
+          this.form.settler_name !== '' &&
+          this.form.settler_certificate_code !== '' &&
+          this.form.settler_certificate_start_date !== '' &&
+          this.form.settler_certificate_end_date !== '' &&
+          this.form.bank_card_pic !== '' &&
+          this.form.bank_account_num !== '' &&
+          this.settler_hold_certificate_pic !== '' &&
+          this.form.settler_hold_bank_card_pic !== '') {
+            sub(this.form)
+              .then(res => {
+                this.$message({
+                  message: '提交成功',
+                  type: 'success'
+                })
+                console.log(res)
+              })
+              .catch(err => {
+                this.$message.error('相关数据不能为空')
+                this.$message({
+                  message: '',
+                  type: 'warning'
+                })
+              })
+          } else {
+            this.$message('非法人信息不为空')
+          }
+        }
+      }
+    },
+    // 个人提交保存
+    submitperson () {
+      this.form.account_type = this.personage.isPublicType
+      if (this.form.bank_card_pic !== '' &&
+        this.form.bank_account_num !== '') {
+        sub(this.form)
+          .then(res => {
+            this.$message({
+              message: '提交成功',
+              type: 'success'
+            })
+            console.log(res)
+          })
+          .catch(err => {
+            this.$message({
+              message: '相关数据不能为空',
+              type: 'warning'
+            })
+          })
+      } else {
+        this.$message('银行信息不能为空')
+      }
+      console.log(this.form)
+    },
+    savePersonClick () {
+      this.form.account_type = this.personage.isPublicType
+      save(this.form)
+        .then(res => {
+          console.log(res)
+          this.$message({
+            message: '提交成功',
+            type: 'success'
+          })
+        })
+        .catch(err => {
+          this.$message({
+            message: '相关数据不能为空',
+            type: 'warning'
+          })
+        })
+    },
+    // 个体提交保存
+    submitForm () {
+      if (this.form.account_type === 'PUBLIC') {
+        if (
+          this.form.account_open_license_pic !== '' && this.form.account_open_license_name !== '' && this.form.certificate_name !== '' && this.form.bank_name !== '' && this.form.bank_name !== ''
+        ) {
+          sub(this.form)
+            .then(res => {
+              this.$message({
+                message: '提交成功',
+                type: 'success'
+              }); console.log(res)
+            })
+            .catch(err => {
+              this.$message({
+                message: '相关数据不能为空',
+                type: 'warning'
+              })
+            })
+        } else {
+          this.$message('开户信息不为空')
+        }
+      }
+      if (this.form.account_type === 'PRIVATE') {
+        if (this.form.is_legal_name_account === '法') {
+          if (this.form.bank_card_pic !== '' && this.form.bank_account_num !== '') {
+            sub(this.form)
+              .then(res => {
+                this.$message({
+                  message: '提交成功',
+                  type: 'success'
+                }); console.log(res)
+              })
+              .catch(err => {
+                this.$message({
+                  message: '相关数据不能为空',
+                  type: 'warning'
+                })
+              })
+          } else {
+            this.$message('法人信息不为空')
+          }
+        } else if (this.form.is_legal_name_account === '非') {
+          if (this.form.settler_authorization_pic !== '' &&
+          this.form.settler_certificate_front_pic !== '' &&
+          this.form.settler_certificate_back_pic !== '' &&
+          this.form.settler_name !== '' &&
+          this.form.settler_certificate_code !== '' &&
+          this.form.settler_certificate_start_date !== '' &&
+          this.form.settler_certificate_end_date !== '' &&
+          this.form.bank_card_pic !== '' &&
+          this.form.bank_account_num !== '' &&
+          this.settler_hold_certificate_pic !== '' &&
+          this.form.settler_hold_bank_card_pic !== '') {
+            sub(this.form)
+              .then(res => {
+                this.$message({
+                  message: '提交成功',
+                  type: 'success'
+                }); console.log(res)
+              })
+              .catch(err => {
+                this.$message({
+                  message: '相关数据不能为空',
+                  type: 'warning'
+                })
+              })
+          } else {
+            this.$message('非法人信息不为空')
+          }
+        }
+      }
+    },
+    saveClick () {
+      save(this.form)
+        .then(res => {
+          console.log(res)
+          this.$message('保存成功')
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    protocalChange (file) {
+      if (this.beforeAvatarUpload(file)) {
+        const formData = new FormData()
+        formData.append('image', file.raw)
+        Img(formData)
+          .then(res => {
+            this.form.protocal_pic = res.image_save_url
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    handleRemove () {
+      this.form.license_pic = ''
+    },
+    shop_door_picRemove () {
+      this.form.shop_door_pic = ''
+    },
+    shop_inside_picRemove () {
+      this.form.shop_inside_pic = ''
+    },
+    shop_cashier_desk_picRemove () {
+      this.form.shop_cashier_desk_pic = ''
+    },
+    shop_outside_picRemove () {
+      this.form.shop_outside_pic = ''
+    },
+    // 营业执照
+    license_picRemove () {
+      this.form.license_pic = ''
+    },
+    // 法人身份证正面删除
+    id_card_front_picRemove () {
+      this.form.id_card_front_pic = ''
+    },
+    // 法人身份证背面删
+    id_card_back_picRemove () {
+      this.form.id_card_back_pic = ''
+    },
+    // 法人手持身份证图片
+    id_card_hand_picRemove () {
+      this.form.id_card_hand_pic = ''
+    },
+    // 银行卡正面图片
+    bank_card_picRemove () {
+      this.form.bank_card_pic = ''
+    },
+    // 非法人结算授权照片
+    settler_authorization_picRemove () {
+      this.form.settler_authorization_pic = ''
+    },
+    // 结算非法人身份证正面图片
+    settler_certificate_front_picRemove () {
+      this.form.settler_certificate_front_pic = ''
+    },
+    // 结算非法人身份证反面图片
+    settler_certificate_back_picRemove () {
+      this.form.settler_certificate_back_pic = ''
+    },
+    // 非法人结算人手持身份证照片地址
+    settler_hold_certificate_picRemove () {
+      this.form.settler_hold_certificate_pic = ''
+    },
+    // 非法人结算人手持银行卡照片地址
+    settler_hold_bank_card_picRemove () {
+      this.form.settler_hold_bank_card_pic = ''
+    },
+    protocal_picRemove () {
+      this.form.protocal_pic = ''
+    },
+    bank_branchChange (val) {
+      var obj = {}
+      obj = this.bank_branchList.find(item => {
+        return item.value = val
+      })
+      this.form.bank_branch_name = obj.label
+      console.log(this.form.bank_branch_name)
+    }
+  }
+}
+</script>
+
+<style scoped>
+.app-container {
+  padding: 20px 10px 20px 10px;
+}
+.title {
+  background: #eee;
+  padding-left: 20px;
+}
+.title h2 {
+  width: 100%;
+  line-height: 40px;
+  font-size: 16px;
+  font-weight: 400;
+}
+.hide .el-upload--picture-card {
+  display: none;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+  border: 1px dashed #d9d9d9;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+.license_box {
+  width: 40%;
+  margin-left: 30px;
+}
+.license_content {
+  display: flex;
+}
+.save {
+  width: 50px;
+  color: #f4f4f5;
+  background: #409eff;
+  position: fixed;
+  bottom: 150px;
+  right: 50px;
+  text-align: center;
+}
+/* 数据信息 */
+.dataBox {
+  border: 1px solid #f0f0f0;
+  padding: 20px 10px 0 40px;
+}
+.ipt {
+  margin-left: 20px;
+  width: 205px;
+}
+.el-form--inline .el-form-item{
+  margin-right: 0;
+}
+.el-form-item {
+  margin-bottom: 10px;
+}
+.avatar-uploader {
+  height: 177px;
+}
+.img_save {
+  text-align: center;
+  background: #f4f4f5;
+  color: skyblue;
+    border: 1px solid #ccc;
+    line-height: 25px;
+  cursor: pointer;
+
+}
+.img_bd_box {
+  border: 1px solid #f0f0f0;
+}
+.lable_box {
+  margin-left: 20px;
+}
+.commonality-img {
+  margin-bottom: 30px;
+}
+.bank{
+  margin-bottom: 20px;
+}
+.btn{
+  width: 200px;
+  display: flex;
+  justify-content: space-between;
+  margin:0 auto;
+}
+.shopImgBox{
+  display: flex;
+  justify-content:space-around;
+}
+.shopImgBox p{
+  text-align: center;
+  color: #ccc;
+}
+.id_cardImgBox{
+  display: flex;
+  margin-left:148px;
+  margin-bottom: 10px;
+}
+.id_cardImgBox p{
+  text-align: center;
+  color: #ccc;
+}
+.licenseId{
+  margin-top: 30px;
+  width: 50%;
+}
+.title-box{
+  border: 1px solid skyblue;
+  width: 9%;
+  padding: 10px;
+  text-align: center;
+  color: #8c939d;
+  margin-left: 30px;
+  border-radius:5px;
+}
+</style>
